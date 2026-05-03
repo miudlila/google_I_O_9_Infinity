@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Info Infinity — Cinematic Genesis</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+        #info {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 9px;
+            font-weight: 300;
+            letter-spacing: 7px;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info">Galactic Genesis — The Breath of 9</div>
+    <div id="audio-hint" style="position: absolute; top: 25px; right: 30px; color: rgba(255,255,255,0.4); font-family: ui-serif, Georgia, serif; font-size: 11px; letter-spacing: 1.5px; font-style: italic; cursor: pointer; transition: opacity 0.5s; text-shadow: 0 0 10px rgba(0,0,0,0.5);">Resonating within the infinite sea of information — Click to awaken the chorus</div>
+
+<script>
+    // --- SOUNDSCAPE: CHANT OF THE UNIVERSE ---
+    let audioCtx = null;
+    let mainGain = null;
+
+    function initAudio() {
+        if (audioCtx) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        mainGain = audioCtx.createGain();
+        mainGain.gain.setValueAtTime(0.18, audioCtx.currentTime); // Increased master volume
+        mainGain.connect(audioCtx.destination);
+
+        // Deep Drone (Harmonized to C)
+        createDrone(65.41, 0.4); // C2
+        createDrone(98.00, 0.3); // G2
+        
+        // Stellar Effect (Random Pings)
+        setInterval(() => {
+            if (Math.random() > 0.75) playStarPing();
+        }, 2200);
+
+        // Immediate audio feedback for the current visual state
+        playTransitionSound(state);
+
+        document.getElementById('audio-hint').style.opacity = '0';
+        setTimeout(() => { document.getElementById('audio-hint').style.display = 'none'; }, 500);
+    }
+
+    function createDrone(freq, vol) {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        g.gain.setValueAtTime(0, audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(vol * 0.4, audioCtx.currentTime + 5);
+        
+        // Slow volume oscillation (breathing)
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+        lfo.frequency.setValueAtTime(0.12, audioCtx.currentTime);
+        lfoGain.gain.setValueAtTime(vol * 0.1, audioCtx.currentTime);
+        lfo.connect(lfoGain.gain);
+        lfoGain.connect(g.gain);
+        
+        osc.connect(g);
+        g.connect(mainGain);
+        osc.start();
+        lfo.start();
+    }
+
+    function playStarPing() {
+        const freq = 440 * Math.pow(2, Math.floor(Math.random() * 12) / 12) * 2;
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1800, audioCtx.currentTime);
+
+        g.gain.setValueAtTime(0, audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.1);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 5);
+
+        osc.connect(filter);
+        filter.connect(g);
+        g.connect(mainGain);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 5);
+    }
+
+    function playTransitionSound(targetState) {
+        if (!audioCtx) return;
+
+        const g = audioCtx.createGain();
+        g.connect(mainGain);
+        g.gain.setValueAtTime(0, audioCtx.currentTime);
+
+        if (targetState === STATES.VORTEX) {
+            // The Vortex: A sweep of circular energy + High shimmer
+            const osc = audioCtx.createOscillator();
+            const shim = audioCtx.createOscillator();
+            const filter = audioCtx.createBiquadFilter();
+            const shimGain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            shim.type = 'sine';
+            
+            osc.frequency.setValueAtTime(35, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 3.5);
+            
+            shim.frequency.setValueAtTime(800, audioCtx.currentTime);
+            shim.frequency.exponentialRampToValueAtTime(3500, audioCtx.currentTime + 4);
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(150, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(2500, audioCtx.currentTime + 3);
+            filter.Q.value = 8;
+
+            g.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.8);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 5);
+
+            shimGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            shimGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 1);
+            shimGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 5);
+
+            osc.connect(filter);
+            filter.connect(g);
+            shim.connect(shimGain);
+            shimGain.connect(mainGain);
+
+            osc.start();
+            shim.start();
+            osc.stop(audioCtx.currentTime + 5);
+            shim.stop(audioCtx.currentTime + 5);
+        } 
+        else if (targetState === STATES.CRYSTAL) {
+            // Solemn Crystallization: Chord + High "Glassy" Ping
+            const frequencies = [130.81, 196.00, 261.63]; 
+            frequencies.forEach((f) => {
+                const osc = audioCtx.createOscillator();
+                const gLocal = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+                gLocal.gain.setValueAtTime(0, audioCtx.currentTime);
+                gLocal.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.5);
+                gLocal.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+                osc.connect(gLocal);
+                gLocal.connect(mainGain);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 4);
+            });
+
+            // The "Glassy" Ping
+            const ping = audioCtx.createOscillator();
+            const pingG = audioCtx.createGain();
+            ping.type = 'sine';
+            ping.frequency.setValueAtTime(1567.98, audioCtx.currentTime); // G6
+            pingG.gain.setValueAtTime(0, audioCtx.currentTime);
+            pingG.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.05);
+            pingG.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+            ping.connect(pingG);
+            pingG.connect(mainGain);
+            ping.start();
+            ping.stop(audioCtx.currentTime + 1.5);
+        }
+        else if (targetState === STATES.DIAMOND) {
+            // The Bloom: Celestial swell
+            const swell = audioCtx.createOscillator();
+            const swellG = audioCtx.createGain();
+            swell.type = 'triangle';
+            swell.frequency.setValueAtTime(329.63, audioCtx.currentTime); // E4
+            swellG.gain.setValueAtTime(0, audioCtx.currentTime);
+            swellG.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 2.5);
+            swellG.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 6);
+            swell.connect(swellG);
+            swellG.connect(mainGain);
+            swell.start();
+            swell.stop(audioCtx.currentTime + 6);
+        }
+        else if (targetState === STATES.REVERSE) {
+            // Disintegration: Exhale + Decay
+            const noise = audioCtx.createBufferSource();
+            const bufferSize = audioCtx.sampleRate * 4;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            
+            noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 3.5);
+
+            g.gain.linearRampToValueAtTime(0.75, audioCtx.currentTime + 0.5);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+
+            noise.connect(filter);
+            filter.connect(g);
+            noise.start();
+        }
+    }
+
+    window.addEventListener('click', initAudio);
+    window.addEventListener('touchstart', initAudio);
+
+    // --- VISUAL LOGIC ---
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+    
+    const GOOGLE_COLORS = [
+        {r: 66, g: 133, b: 244}, // #4285F4 (Blue)
+        {r: 234, g: 67, b: 53},  // #EA4335 (Red)
+        {r: 251, g: 188, b: 5},  // #FBBC05 (Yellow)
+        {r: 52, g: 168, b: 83}   // #34A853 (Green)
+    ];
+    
+    const MAX_PARTICLES = 8200; 
+    const STATES = { INTRIGUE: 0, VORTEX: 1, CRYSTAL: 2, DIAMOND: 3, REVERSE: 4 };
+    
+    let width, height, centerX, centerY;
+    let particles = [];
+    let nebulaBlobs = [];
+    let state = STATES.INTRIGUE;
+    let lastState = state;
+    let stateStartTime = Date.now();
+    let globalRotation = 0;
+    let targetRotation = 0;
+
+    const lerp = (a, b, n) => (1 - n) * a + n * b;
+    const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    class NebulaBlob {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * (width || window.innerWidth);
+            this.y = Math.random() * (height || window.innerHeight);
+            this.size = Math.random() * 600 + 400;
+            this.vx = (Math.random() - 0.5) * 0.15;
+            this.vy = (Math.random() - 0.5) * 0.15;
+            this.color = GOOGLE_COLORS[Math.floor(Math.random() * GOOGLE_COLORS.length)];
+            this.phase = Math.random() * Math.PI * 2;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.phase += 0.002;
+            const s = this.size;
+            if (this.x < -s) this.x = width + s;
+            if (this.x > width + s) this.x = -s;
+            if (this.y < -s) this.y = height + s;
+            if (this.y > height + s) this.y = -s;
+        }
+        draw(ctx) {
+            const opacity = 0.015 + Math.sin(this.phase) * 0.008;
+            const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+            grad.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${opacity})`);
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
+        }
+    }
+
+    class Particle {
+        constructor(id) {
+            this.id = id;
+            this.reset();
+        }
+
+        reset() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            this.ox = this.x; 
+            this.oy = this.y;
+            this.relTx = 0;
+            this.relTy = 0;
+            
+            this.radius = Math.random() * 1.3 + 0.4;
+            this.baseRadius = this.radius;
+            
+            this.baseColor = GOOGLE_COLORS[this.id % GOOGLE_COLORS.length];
+            this.currR = this.baseColor.r;
+            this.currG = this.baseColor.g;
+            this.currB = this.baseColor.b;
+            
+            this.angle = Math.random() * Math.PI * 2;
+            this.orbitRadius = Math.random() * Math.min(w, h) * 0.6; 
+            this.speed = 0.004 + Math.random() * 0.008;
+            this.glitterShift = Math.random() * 100;
+            this.ease = 0.012 + Math.random() * 0.02;
+            this.colorDelay = Math.random() * 1.5; 
+        }
+    }
+
+    function precompute() {
+        if (width <= 0 || height <= 0) return;
+        const offscreen = document.createElement('canvas');
+        const octx = offscreen.getContext('2d', { willReadFrequently: true });
+        offscreen.width = width;
+        offscreen.height = height;
+        
+        const fontSize = Math.min(width, height) * 0.95;
+        octx.fillStyle = 'white';
+        octx.font = `bold ${fontSize}px sans-serif`;
+        octx.textAlign = 'center';
+        octx.textBaseline = 'middle';
+        octx.fillText('9', centerX, centerY);
+        
+        const imageData = octx.getImageData(0, 0, width, height).data;
+        const silueta = [];
+        for (let y = 0; y < height; y += 2) {
+            for (let x = 0; x < width; x += 2) {
+                if (imageData[(y * width + x) * 4 + 3] > 128) {
+                    silueta.push({x: x - centerX, y: y - centerY});
+                }
+            }
+        }
+        
+        particles.forEach(p => {
+            const punto = silueta[Math.floor(Math.random() * silueta.length)] || {x: 0, y: 0};
+            p.relTx = punto.x;
+            p.relTy = punto.y;
+        });
+    }
+
+    function init() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        centerX = width / 2;
+        centerY = height / 2;
+        particles = Array.from({ length: MAX_PARTICLES }, (_, i) => new Particle(i));
+        nebulaBlobs = Array.from({ length: 5 }, () => new NebulaBlob());
+        precompute();
+    }
+
+    function update() {
+        const now = Date.now();
+        const elapsed = (now - stateStartTime) / 1000;
+        const time = now * 0.002;
+        
+        nebulaBlobs.forEach(b => b.update());
+        
+        // --- DYNAMIC TIMELINE ---
+        if (state === STATES.INTRIGUE && elapsed > 0.7) state = STATES.VORTEX;
+        else if (state === STATES.VORTEX && elapsed > 4.7) {
+            state = STATES.CRYSTAL;
+            targetRotation = Math.ceil(globalRotation / (Math.PI * 2)) * (Math.PI * 2);
+            if (targetRotation === globalRotation) targetRotation += Math.PI * 2; 
+        }
+        else if (state === STATES.CRYSTAL && elapsed > 5.5) state = STATES.DIAMOND;
+        else if (state === STATES.DIAMOND && elapsed > 12.7) state = STATES.REVERSE; // 7.2 seconds of glory
+        else if (state === STATES.REVERSE && elapsed > 16.5) {
+            state = STATES.INTRIGUE;
+            stateStartTime = now;
+            globalRotation = 0;
+            targetRotation = 0;
+            particles.forEach(p => { p.ox = Math.random() * width; p.oy = Math.random() * height; });
+        }
+
+        if (state !== lastState) {
+            playTransitionSound(state);
+            lastState = state;
+        }
+
+        // --- UNIDIRECTIONAL ROTATION MANAGEMENT ---
+        if (state <= STATES.VORTEX) {
+            globalRotation += 0.005; 
+        } else if (state === STATES.CRYSTAL || state === STATES.DIAMOND) {
+            globalRotation = lerp(globalRotation, targetRotation, 0.04); 
+        } else if (state === STATES.REVERSE) {
+            globalRotation = lerp(globalRotation, targetRotation, 0.06);
+        }
+
+        const cosR = Math.cos(globalRotation);
+        const sinR = Math.sin(globalRotation);
+
+        for (let i = 0; i < MAX_PARTICLES; i++) {
+            const p = particles[i];
+            let targetX, targetY, targetR = 255, targetG = 255, targetB = 255;
+            let currentEase = p.ease;
+
+            // 1. Intrigue: Soft Cosmic Chaos
+            if (state === STATES.INTRIGUE) {
+                p.angle += 0.01;
+                targetX = p.ox + Math.cos(p.angle) * 4;
+                targetY = p.oy + Math.sin(p.angle) * 4;
+                
+                const cFactor = Math.max(0, Math.min(1, (elapsed - p.colorDelay) * 0.4));
+                targetR = lerp(p.baseColor.r, 255, cFactor);
+                targetG = lerp(p.baseColor.g, 255, cFactor);
+                targetB = lerp(p.baseColor.b, 255, cFactor);
+                p.radius = p.baseRadius * (0.8 + Math.sin(time * 5 + p.glitterShift) * 0.2);
+            } 
+            // 2. Milky Way: Dense Center and Giant Sphere (No black hole)
+            else if (state === STATES.VORTEX) {
+                const vortexFactor = easeInOutCubic(Math.min(1, (elapsed - 0.7) / 4.0));
+                const density = (p.id % 100) / 100;
+                // Higher exponent (1.6) concentrates density at the center
+                const r = lerp(p.orbitRadius, (width * 0.5) * Math.pow(density, 1.6), vortexFactor);
+                
+                p.angle += 0.015 + p.speed;
+                targetX = centerX + Math.cos(p.angle) * r;
+                targetY = centerY + Math.sin(p.angle) * r;
+                
+                p.radius = p.baseRadius * (1.1 + Math.sin(time * 4) * 0.3);
+                currentEase = p.ease * 1.3;
+            }
+            // 3. Crystallization and Diamond: The Majestic 9
+            else if (state === STATES.CRYSTAL || state === STATES.DIAMOND) {
+                const rx = p.relTx * cosR - p.relTy * sinR;
+                const ry = p.relTx * sinR + p.relTy * cosR;
+                targetX = centerX + rx;
+                targetY = centerY + ry;
+                
+                const glitterEffect = (0.7 + Math.sin(time * 15 + p.glitterShift) * 0.6);
+                p.radius = p.baseRadius * glitterEffect;
+                
+                // CLIMAX: Final 7.2 seconds of the (Crystal + Diamond) phase (5.5s to 12.7s)
+                if ((state === STATES.CRYSTAL || state === STATES.DIAMOND) && elapsed > 5.5) {
+                    const colorAlpha = Math.min(1, (elapsed - 5.5) / 7.2);
+                    targetR = lerp(255, p.baseColor.r, colorAlpha);
+                    targetG = lerp(255, p.baseColor.g, colorAlpha);
+                    targetB = lerp(255, p.baseColor.b, colorAlpha);
+                } else {
+                    targetR = 255; targetG = 255; targetB = 255;
+                }
+                
+                currentEase = (state === STATES.CRYSTAL) ? p.ease * 1.6 : p.ease * 1.15;
+            }
+            // 4. Reverse: Majestic Disintegration
+            else if (state === STATES.REVERSE) {
+                const reverseFactor = easeInOutCubic(Math.min(1, (elapsed - 12.7) / 3.8));
+                targetX = p.ox;
+                targetY = p.oy;
+                targetR = p.baseColor.r;
+                targetG = p.baseColor.g;
+                targetB = p.baseColor.b;
+                p.radius = p.baseRadius;
+                currentEase = p.ease * 0.65;
+            }
+
+            p.x = lerp(p.x, targetX, currentEase);
+            p.y = lerp(p.y, targetY, currentEase);
+            p.currR = lerp(p.currR, targetR, 0.05);
+            p.currG = lerp(p.currG, targetG, 0.05);
+            p.currB = lerp(p.currB, targetB, 0.05);
+        }
+    }
+
+    function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.16)'; 
+        ctx.fillRect(0, 0, width, height);
+        
+        ctx.globalCompositeOperation = 'screen';
+        nebulaBlobs.forEach(b => b.draw(ctx));
+        
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < MAX_PARTICLES; i++) {
+            const p = particles[i];
+            ctx.fillStyle = `rgb(${Math.round(p.currR)},${Math.round(p.currG)},${Math.round(p.currB)})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, 6.29);
+            ctx.fill();
+        }
+        ctx.globalCompositeOperation = 'source-over';
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('resize', init);
+    init();
+    loop();
+</script>
+</body>
+</html>
