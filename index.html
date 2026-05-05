@@ -47,12 +47,12 @@
         if (audioCtx) return;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         mainGain = audioCtx.createGain();
-        mainGain.gain.setValueAtTime(0.18, audioCtx.currentTime); // Increased master volume
+        mainGain.gain.setValueAtTime(0.35, audioCtx.currentTime); // Increased master volume for more impact
         mainGain.connect(audioCtx.destination);
 
         // Deep Drone (Harmonized to C)
-        createDrone(65.41, 0.4); // C2
-        createDrone(98.00, 0.3); // G2
+        createDrone(65.41, 0.45); // C2
+        createDrone(98.00, 0.35); // G2
         
         // Stellar Effect (Random Pings)
         setInterval(() => {
@@ -73,13 +73,13 @@
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
         
         g.gain.setValueAtTime(0, audioCtx.currentTime);
-        g.gain.linearRampToValueAtTime(vol * 0.4, audioCtx.currentTime + 5);
+        g.gain.linearRampToValueAtTime(vol * 0.6, audioCtx.currentTime + 5);
         
         // Slow volume oscillation (breathing)
         const lfo = audioCtx.createOscillator();
         const lfoGain = audioCtx.createGain();
         lfo.frequency.setValueAtTime(0.12, audioCtx.currentTime);
-        lfoGain.gain.setValueAtTime(vol * 0.1, audioCtx.currentTime);
+        lfoGain.gain.setValueAtTime(vol * 0.15, audioCtx.currentTime);
         lfo.connect(lfoGain.gain);
         lfoGain.connect(g.gain);
         
@@ -102,7 +102,7 @@
         filter.frequency.setValueAtTime(1800, audioCtx.currentTime);
 
         g.gain.setValueAtTime(0, audioCtx.currentTime);
-        g.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.1);
+        g.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.1);
         g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 5);
 
         osc.connect(filter);
@@ -141,11 +141,11 @@
             filter.frequency.exponentialRampToValueAtTime(2500, audioCtx.currentTime + 3);
             filter.Q.value = 8;
 
-            g.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.8);
+            g.gain.linearRampToValueAtTime(0.85, audioCtx.currentTime + 0.8);
             g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 5);
 
             shimGain.gain.setValueAtTime(0, audioCtx.currentTime);
-            shimGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 1);
+            shimGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 1);
             shimGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 5);
 
             osc.connect(filter);
@@ -167,7 +167,7 @@
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(f, audioCtx.currentTime);
                 gLocal.gain.setValueAtTime(0, audioCtx.currentTime);
-                gLocal.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.5);
+                gLocal.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.5);
                 gLocal.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
                 osc.connect(gLocal);
                 gLocal.connect(mainGain);
@@ -181,7 +181,7 @@
             ping.type = 'sine';
             ping.frequency.setValueAtTime(1567.98, audioCtx.currentTime); // G6
             pingG.gain.setValueAtTime(0, audioCtx.currentTime);
-            pingG.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.05);
+            pingG.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
             pingG.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
             ping.connect(pingG);
             pingG.connect(mainGain);
@@ -195,7 +195,7 @@
             swell.type = 'triangle';
             swell.frequency.setValueAtTime(329.63, audioCtx.currentTime); // E4
             swellG.gain.setValueAtTime(0, audioCtx.currentTime);
-            swellG.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 2.5);
+            swellG.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 2.5);
             swellG.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 6);
             swell.connect(swellG);
             swellG.connect(mainGain);
@@ -216,7 +216,7 @@
             filter.frequency.setValueAtTime(800, audioCtx.currentTime);
             filter.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 3.5);
 
-            g.gain.linearRampToValueAtTime(0.75, audioCtx.currentTime + 0.5);
+            g.gain.linearRampToValueAtTime(0.9, audioCtx.currentTime + 0.5);
             g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
 
             noise.connect(filter);
@@ -370,14 +370,14 @@
         
         // --- DYNAMIC TIMELINE ---
         if (state === STATES.INTRIGUE && elapsed > 0.7) state = STATES.VORTEX;
-        else if (state === STATES.VORTEX && elapsed > 4.7) {
+        else if (state === STATES.VORTEX && elapsed > 5.7) {
             state = STATES.CRYSTAL;
             targetRotation = Math.ceil(globalRotation / (Math.PI * 2)) * (Math.PI * 2);
             if (targetRotation === globalRotation) targetRotation += Math.PI * 2; 
         }
-        else if (state === STATES.CRYSTAL && elapsed > 5.5) state = STATES.DIAMOND;
-        else if (state === STATES.DIAMOND && elapsed > 12.7) state = STATES.REVERSE; // 7.2 seconds of glory
-        else if (state === STATES.REVERSE && elapsed > 16.5) {
+        else if (state === STATES.CRYSTAL && elapsed > 6.5) state = STATES.DIAMOND;
+        else if (state === STATES.DIAMOND && elapsed > 13.7) state = STATES.REVERSE; // Adjusted for +1s
+        else if (state === STATES.REVERSE && elapsed > 17.5) {
             state = STATES.INTRIGUE;
             stateStartTime = now;
             globalRotation = 0;
@@ -421,10 +421,10 @@
             } 
             // 2. Milky Way: Dense Center and Giant Sphere (No black hole)
             else if (state === STATES.VORTEX) {
-                const vortexFactor = easeInOutCubic(Math.min(1, (elapsed - 0.7) / 4.0));
+                const vortexFactor = easeInOutCubic(Math.min(1, (elapsed - 0.7) / 5.0));
                 const density = (p.id % 100) / 100;
-                // Higher exponent (1.6) concentrates density at the center
-                const r = lerp(p.orbitRadius, (width * 0.5) * Math.pow(density, 1.6), vortexFactor);
+                // Even higher exponent (2.8) for extreme center density, width * 0.8 for diameter
+                const r = lerp(p.orbitRadius, (width * 0.8) * Math.pow(density, 2.8), vortexFactor);
                 
                 p.angle += 0.015 + p.speed;
                 targetX = centerX + Math.cos(p.angle) * r;
@@ -432,6 +432,14 @@
                 
                 p.radius = p.baseRadius * (1.1 + Math.sin(time * 4) * 0.3);
                 currentEase = p.ease * 1.3;
+
+                // Color transition offset
+                if (elapsed > 2.5) {
+                    const colorAlpha = Math.min(1, (elapsed - 2.5) / 11.2);
+                    targetR = lerp(255, p.baseColor.r, colorAlpha);
+                    targetG = lerp(255, p.baseColor.g, colorAlpha);
+                    targetB = lerp(255, p.baseColor.b, colorAlpha);
+                }
             }
             // 3. Crystallization and Diamond: The Majestic 9
             else if (state === STATES.CRYSTAL || state === STATES.DIAMOND) {
@@ -443,9 +451,9 @@
                 const glitterEffect = (0.7 + Math.sin(time * 15 + p.glitterShift) * 0.6);
                 p.radius = p.baseRadius * glitterEffect;
                 
-                // CLIMAX: Final 7.2 seconds of the (Crystal + Diamond) phase (5.5s to 12.7s)
-                if ((state === STATES.CRYSTAL || state === STATES.DIAMOND) && elapsed > 5.5) {
-                    const colorAlpha = Math.min(1, (elapsed - 5.5) / 7.2);
+                // CLIMAX: Final 10.2 seconds before reverse (2.5s to 12.7s)
+                if ((state === STATES.CRYSTAL || state === STATES.DIAMOND) && elapsed > 2.5) {
+                    const colorAlpha = Math.min(1, (elapsed - 2.5) / 10.2);
                     targetR = lerp(255, p.baseColor.r, colorAlpha);
                     targetG = lerp(255, p.baseColor.g, colorAlpha);
                     targetB = lerp(255, p.baseColor.b, colorAlpha);
